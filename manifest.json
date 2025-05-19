@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "ADBS",
+  "version": "0.0.0",
+  "description": "ADBS Firefox Addon",
+  "permissions": [
+    "bookmarks",
+    "storage",
+    "tabs",
+    "<all_urls>"
+  ],
+}
