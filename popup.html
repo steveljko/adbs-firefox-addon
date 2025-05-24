@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Laravel App Connector</title>
+    <style>
+        body {
+            width: 350px;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .hidden {
+          display: none;
+        }
+    </style>
+    <script src="/popup.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Server Configuration -->
+        <div id="serverConfig">
+            <h1>Server Configuration</h1>
+            <div class="form-group">
+                <label for="serverUrl">Server URL:</label>
+                <input type="text" id="url" placeholder="https://server.domain" />
+            </div>
+            <button id="saveServerBtn">Save & Test Connection</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="hidden">
+            <h1>Login to Continue</h1>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="your@email.com" />
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Your password" />
+            </div>
+            <button id="loginBtn">Login</button>
+            <button id="backToServerBtn" style="background: #6c757d;">Back to Server Config</button>
+        </div>
+    </div>
+</body>
+</html>
