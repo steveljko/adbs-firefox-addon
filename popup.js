@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('token')) {
+    document.getElementById('serverConfig').classList.add('hidden');
+    document.getElementById('checkAcception').classList.toggle('hidden');
+  }
+
   async function checkConnection(url) {
     try {
       const res = await fetch(`${url}/api/ping`);
@@ -35,7 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch("http://localhost:8000/api/login", {
         method: "POST",
         body: JSON.stringify({ email: email, password: password }),
-        headers: { "Accept": "application/json", "Content-type": "application/json" }
+        headers: {
+          "Accept": "application/json",
+          "Content-type": "application/json",
+          "X-Addon-Version": "0.0.0",
+        }
       });
 
       if (!response.ok) {
@@ -43,9 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(`HTTP error! status: ${response.status}, message: ${error}`);
       }
 
-      const data = await response.json();
-      if (data.status == "ok") {
-        console.log('yeah')
+      const { status, token } = await response.json();
+      if (status == "ok") {
+        localStorage.setItem('token', token);
+
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('checkAcception').classList.toggle('hidden');
       }
     });
+
+  document.getElementById('remove').addEventListener('click', _ => localStorage.removeItem('token'));
 });
