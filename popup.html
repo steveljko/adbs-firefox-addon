@@ -1,59 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Laravel App Connector</title>
-    <style>
-        body {
-            width: 350px;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-        }
-        
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .hidden {
-          display: none;
-        }
-    </style>
-    <script src="/popup.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laravel App Connector</title>
+  <script src="/popup.js"></script>
+  <link rel="stylesheet" href="/app.css" />
 </head>
+
 <body>
-    <div class="container">
-        <!-- Server Configuration -->
-        <div id="serverConfig">
-            <h1>Server Configuration</h1>
-            <div class="form-group">
-                <label for="serverUrl">Server URL:</label>
-                <input type="text" id="url" placeholder="https://server.domain" />
-            </div>
-            <button id="saveServerBtn">Save & Test Connection</button>
-        </div>
-
-        <!-- Login Form -->
-        <div id="loginForm" class="hidden">
-            <h1>Login to Continue</h1>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" placeholder="your@email.com" />
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" placeholder="Your password" />
-            </div>
-            <button id="loginBtn">Login</button>
-            <button id="backToServerBtn" style="background: #6c757d;">Back to Server Config</button>
-        </div>
-
-        <div id="checkAcception" class="hidden">
-            <h1>Wait till accepted.</h1>
-            <a href="#" id="remove">Logout</a>
-        </div>
+  <div class="container">
+    <div class="header">
+      <h1>ADBS</h1>
     </div>
+
+    <div class="content">
+      <!-- Server Configuration View -->
+      <div id="serverView" class="view active">
+        <div class="form-group">
+          <label for="serverUrl">Server URL</label>
+          <input type="text" id="serverUrl" placeholder="https://your-server.com" />
+        </div>
+
+        <div id="serverError" class="alert alert-error"></div>
+
+        <button id="testConnectionBtn" class="btn btn-primary">
+          <span id="serverSpinner" class="loading-spinner hidden"></span>
+          <span id="serverBtnText">Test Connection</span>
+        </button>
+      </div>
+
+      <!-- Login View -->
+      <div id="loginView" class="view">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="your@email.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" />
+        </div>
+
+        <div id="loginError" class="alert alert-error"></div>
+
+        <button id="loginBtn" class="btn btn-primary">
+          <span id="loginSpinner" class="loading-spinner hidden"></span>
+          <span id="loginBtnText">Sign In</span>
+        </button>
+
+        <button id="backToServerBtn" class="btn btn-secondary">
+          Back to Server Config
+        </button>
+      </div>
+
+      <!-- Dashboard View -->
+      <div id="dashboardView" class="view">
+        <div id="user-info">
+          <h2>
+            <span class="status-indicator"></span>
+            Connected Successfully
+          </h2>
+        </div>
+
+        <button id="logoutBtn" class="btn btn-danger">
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>

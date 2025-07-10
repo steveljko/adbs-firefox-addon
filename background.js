@@ -13,6 +13,7 @@ browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
         "Accept": "application/json",
         "Content-Type": "application/json",
         "X-Addon-Version": "0.0.0",
+        "Authorization": `Bearer ${localStorage.getItem('token')}`
       },
       body: JSON.stringify(bookmarkData)
     });
