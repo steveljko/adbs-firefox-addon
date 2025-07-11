@@ -9,7 +9,7 @@
     "tabs"
   ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["helpers/api.js", "helpers/storage.js", "background.js"]
   },
   "action": {
     "default_popup": "popup.html"

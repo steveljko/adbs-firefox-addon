@@ -1,39 +1,37 @@
-browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
-  try {
-    const bookmarkData = {
-      title: bookmark.title || '',
-      url: bookmark.url
-    };
+(async () => {
+  const api = new ApiClient();
+  await api.initialize();
 
-    console.log('Syncing bookmark:', bookmarkData);
+  browser.bookmarks.onCreated.addListener(async (id, bookmark) => {
+    try {
+      const bookmarkData = {
+        title: bookmark.title || '',
+        url: bookmark.url
+      };
 
-    const response = await fetch("http://localhost:8000/api/bookmark", {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "X-Addon-Version": "0.0.0",
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(bookmarkData)
-    });
-
-    if (!response.ok) {
-      let errorMessage;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || 'Unknown error';
-      } catch {
-        errorMessage = await response.text();
+      const result = await api.createBookmark(bookmarkData);
+      console.log('Bookmark synced successfully:', result);
+      
+    } catch (error) {
+      console.error('Failed to sync bookmark:', error);
+      
+      if (error instanceof ApiError) {
+        if (error.statusCode === 401) {
+          console.log('Authentication failed, clearing stored token');
+          await api.storage.remove('token');
+        }
+        console.error('API Error:', error.message);
+      } else {
+        console.error('Network or other error:', error.message);
       }
       
-      console.error(`Failed to sync bookmark: ${response.status} - ${errorMessage}`);
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorMessage}`);
+      // remove bookmark from browser if sync failed
+      try {
+        await browser.bookmarks.remove(id);
+        console.log('Bookmark removed from browser due to sync failure');
+      } catch (error) {
+        console.error('Failed to remove bookmark after sync failure:', error);
+      }
     }
-
-    const result = await response.json();
-    console.log('Bookmark synced successfully:', result);
-  } catch (error) {
-    console.error('Error syncing bookmark:', error);
-  }
-});
+  });
+})();

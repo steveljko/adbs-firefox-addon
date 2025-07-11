@@ -1,90 +1,27 @@
-class Popup {
-  constructor() {
-    this.currentView = 'server';
-    this.serverUrl = '';
-    this.user_name = null;
-    this.token = null;
-    this.isLoading = false;
+document.addEventListener('DOMContentLoaded', async () => {
+  const api = new ApiClient;
+  const storage = new StorageManager;
+  let currentView = 'server';
+  let serverUrl = '';
+  let isLoading = false;
 
-    this.init();
-  }
+  await api.initialize();
 
-  init() {
-    this.loadStoredData();
-    this.bindEvents();
-
-    if (this.token) {
-      this.showView('dashboard');
-      this.updateUserInfo();
-    }
-  }
-
-  bindEvents() {
-    // Server configuration
-    document.getElementById('testConnectionBtn').addEventListener('click', () => this.testConnection());
-    document.getElementById('serverUrl').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') this.testConnection();
-    });
-
-    // Login
-    document.getElementById('loginBtn').addEventListener('click', () => this.login());
-    document.getElementById('email').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') this.login();
-    });
-    document.getElementById('password').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') this.login();
-    });
-    document.getElementById('backToServerBtn').addEventListener('click', () => this.showView('server'));
-
-    // Dashboard
-    document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
-  }
-
-  loadStoredData() {
+  async function loadStoredData() {
     try {
-      this.token = this.getStorageItem('token');
-      this.user_name = this.getStorageItem('user_name');
-      const storedServerUrl = this.getStorageItem('serverUrl');
+      const storedServerUrl = await api.storage.get('serverUrl');
 
       if (storedServerUrl) {
-        this.serverUrl = storedServerUrl;
+        serverUrl = storedServerUrl;
         document.getElementById('serverUrl').value = storedServerUrl;
+        api.setBaseURL(storedServerUrl);
       }
     } catch (e) {
       console.error('Error loading stored data:', e);
     }
   }
 
-  getStorageItem(key) {
-    try {
-      return localStorage.getItem(key);
-    } catch (e) {
-      return this[`_${key}`];
-    }
-  }
-
-  setStorageItem(key, value) {
-    try {
-      localStorage.setItem(key, value);
-    } catch (e) {
-      this[`_${key}`] = value;
-    }
-  }
-
-  removeStorageItem(key) {
-    try {
-      localStorage.removeItem(key);
-    } catch (e) {
-      delete this[`_${key}`];
-    }
-  }
-
-  formatUrl(url) {
-    if (!url) return '';
-    return url.startsWith('http') ? url : `https://${url}`;
-  }
-
-  showView(viewName) {
+  function showView(viewName) {
     const views = ['server', 'login', 'dashboard'];
     views.forEach(view => {
       const element = document.getElementById(`${view}View`);
@@ -94,21 +31,21 @@ class Popup {
         element.classList.remove('active');
       }
     });
-    this.currentView = viewName;
+    currentView = viewName;
   }
 
-  showError(elementId, message) {
+  function showError(elementId, message) {
     const errorElement = document.getElementById(elementId);
     errorElement.textContent = message;
     errorElement.classList.add('show');
   }
 
-  hideError(elementId) {
+  function hideError(elementId) {
     const errorElement = document.getElementById(elementId);
     errorElement.classList.remove('show');
   }
 
-  setLoading(buttonId, spinnerId, textId, isLoading, loadingText, normalText) {
+  function setLoading(buttonId, spinnerId, textId, isLoading, loadingText, normalText) {
     const button = document.getElementById(buttonId);
     const spinner = document.getElementById(spinnerId);
     const text = document.getElementById(textId);
@@ -118,133 +55,132 @@ class Popup {
     text.textContent = isLoading ? loadingText : normalText;
   }
 
-  async makeRequest(url, options = {}) {
-    const defaultOptions = {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-Addon-Version': '1.0.0'
-      }
-    };
+  async function updateUserInfo() {
+    const userInfoElement = document.getElementById('user-info');
+    const userName = await storage.get('user_name')
 
-    const mergedOptions = {
-      ...defaultOptions,
-      ...options,
-      headers: {
-        ...defaultOptions.headers,
-        ...options.headers
-      }
-    };
-
-    const response = await fetch(url, mergedOptions);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    if (userName) {
+      userInfoElement.textContent = `Logged in as ${userName}`;
     }
-
-    return response.json();
   }
 
-  async testConnection() {
-    const serverUrl = document.getElementById('serverUrl').value;
+  // API functions
+  async function testConnection() {
+    const serverUrlInput = document.getElementById('serverUrl').value;
 
-    if (!serverUrl) {
-      this.showError('serverError', 'Please enter a server URL');
+    if (!serverUrlInput) {
+      showError('serverError', 'Please enter a server URL');
       return;
     }
 
-    this.hideError('serverError');
-    this.setLoading('testConnectionBtn', 'serverSpinner', 'serverBtnText', true, 'Testing Connection...', 'Test Connection');
+    hideError('serverError');
+    setLoading('testConnectionBtn', 'serverSpinner', 'serverBtnText', true, 'Testing Connection...', 'Test Connection');
 
     try {
-      const formattedUrl = this.formatUrl(serverUrl);
-      const response = await this.makeRequest(`${formattedUrl}/api/ping`);
+      const formattedUrl = formatUrl(serverUrlInput);
+      api.setBaseURL(formattedUrl);
+
+      const response = await api.ping();
 
       if (response && response.status === 'ok') {
-        this.serverUrl = formattedUrl;
-        this.setStorageItem('serverUrl', formattedUrl);
-        this.showView('login');
+        serverUrl = formattedUrl;
+        await api.storage.set('serverUrl', formattedUrl);
+        showView('login');
       } else {
         throw new Error('Invalid server response');
       }
     } catch (error) {
-      if (error.name === 'TypeError') {
-        this.showError('serverError', 'Unable to connect to server. Please check your URL and try again.');
+      if (error.name === 'TypeError' || error.message.includes('Network error')) {
+        showError('serverError', 'Unable to connect to server. Please check your URL and try again.');
       } else {
-        this.showError('serverError', `Connection failed.`);
+        showError('serverError', `Connection failed: ${error.message}`);
       }
     } finally {
-      this.setLoading('testConnectionBtn', 'serverSpinner', 'serverBtnText', false, 'Testing Connection...', 'Test Connection');
+      setLoading('testConnectionBtn', 'serverSpinner', 'serverBtnText', false, 'Testing Connection...', 'Test Connection');
     }
   }
 
-  async login() {
+  async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
     if (!email || !password) {
-      this.showError('loginError', 'Please enter both email and password');
+      showError('loginError', 'Please enter both email and password');
       return;
     }
 
-    this.hideError('loginError');
-    this.setLoading('loginBtn', 'loginSpinner', 'loginBtnText', true, 'Signing In...', 'Sign In');
+    hideError('loginError');
+    setLoading('loginBtn', 'loginSpinner', 'loginBtnText', true, 'Signing In...', 'Sign In');
 
     try {
-      const serverUrl = this.getStorageItem('serverUrl');
-      const response = await this.makeRequest(`${serverUrl}/api/login`, {
-        method: 'POST',
-        body: JSON.stringify({ email, password })
-      });
+      const response = await api.login(email, password);
 
       if (response && response.status === 'success') {
-        this.token = response.token;
-        this.user_name = response.user_name;
-
-        this.setStorageItem('token', this.token);
-        this.setStorageItem('user_name', this.user_name);
-
         document.getElementById('email').value = '';
         document.getElementById('password').value = '';
 
-        this.showView('dashboard');
-        this.updateUserInfo();
+        showView('dashboard');
+        updateUserInfo();
       } else {
         throw new Error('Invalid login response');
       }
     } catch (error) {
-      this.showError('loginError', 'Login failed. Please check your credentials and try again.');
+      console.error('Login error:', error);
+      let errorMessage = 'Login failed. Please check your credentials and try again.';
+
+      if (error instanceof ApiError) {
+        errorMessage = error.message;
+      }
+
+      showError('loginError', errorMessage);
     } finally {
-      this.setLoading('loginBtn', 'loginSpinner', 'loginBtnText', false, 'Signing In...', 'Sign In');
+      setLoading('loginBtn', 'loginSpinner', 'loginBtnText', false, 'Signing In...', 'Sign In');
     }
   }
 
-  updateUserInfo() {
-    const userInfoElement = document.getElementById('user-info');
-    console.log(this.user_name);
+  async function logout() {
+    try {
+      await api.logout();
 
-    if (this.user_name) {
-      userInfoElement.textContent = `Logged in as ${this.user_name}`;
-    }  
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
 
+      hideError('serverError');
+      hideError('loginError');
+
+      showView('server');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   }
 
-  logout() {
-    this.token = null;
-    this.user = null;
+  // Event listeners
+  function bindEvents() {
+    // Server configuration
+    document.getElementById('testConnectionBtn').addEventListener('click', testConnection);
+    document.getElementById('serverUrl').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') testConnection();
+    });
 
-    this.removeStorageItem('token');
-    this.removeStorageItem('user');
+    // Login
+    document.getElementById('loginBtn').addEventListener('click', login);
+    document.getElementById('email').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+    document.getElementById('password').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+    document.getElementById('backToServerBtn').addEventListener('click', () => showView('server'));
 
-    document.getElementById('email').value = '';
-    document.getElementById('password').value = '';
-
-    this.hideError('serverError');
-    this.hideError('loginError');
-
-    this.showView('server');
+    // Dashboard
+    document.getElementById('logoutBtn').addEventListener('click', logout);
   }
-}
 
-document.addEventListener('DOMContentLoaded', () => new Popup);
+  async function init() {
+    await loadStoredData();
+    bindEvents();
+
+    if (api.token) {
+      showView('dashboard');
+      updateUserInfo();
+    }
+  }
+
+  await init();
+});
