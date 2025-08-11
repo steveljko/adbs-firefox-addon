@@ -59,6 +59,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userInfoElement = document.getElementById('user-info');
     const userName = await storage.get('user_name')
 
+    const a = await api.tokenStatus();
+    console.log(a);
+
     if (userName) {
       userInfoElement.textContent = `Logged in as ${userName}`;
     }
@@ -77,14 +80,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     setLoading('testConnectionBtn', 'serverSpinner', 'serverBtnText', true, 'Testing Connection...', 'Test Connection');
 
     try {
-      const formattedUrl = formatUrl(serverUrlInput);
-      api.setBaseURL(formattedUrl);
+      api.setBaseURL(serverUrlInput);
 
       const response = await api.ping();
 
       if (response && response.status === 'ok') {
-        serverUrl = formattedUrl;
-        await api.storage.set('serverUrl', formattedUrl);
+        await api.storage.set('serverUrl', serverUrlInput);
         showView('login');
       } else {
         throw new Error('Invalid server response');
@@ -127,10 +128,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
       console.error('Login error:', error);
       let errorMessage = 'Login failed. Please check your credentials and try again.';
-
-      if (error instanceof ApiError) {
-        errorMessage = error.message;
-      }
 
       showError('loginError', errorMessage);
     } finally {

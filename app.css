@@ -10,17 +10,11 @@
 
 body {
   width: 380px;
-  min-height: 500px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: #1f2937;
 }
 
 .container {
   background: white;
-  min-height: 500px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
