@@ -1,18 +1,8 @@
-class ApiClient {
+class HttpClient {
   constructor() {
     this.baseURL = null;
     this.token = null;
     this.version = '1.0.0';
-    this.storage = new StorageManager();
-  }
-  
-  async initialize() {
-    try {
-      this.baseURL = await this.storage.get('serverUrl');
-      this.token = await this.storage.get('token');
-    } catch (error) {
-      console.error('Failed to initialize API client:', error);
-    }
   }
   
   setBaseURL(url) {
@@ -84,8 +74,7 @@ class ApiClient {
         throw new Error(errorMessage);
       }
       
-      // Check if response has content before trying to parse JSON
-      const contentType = response.headers.get('content-type');
+     const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         return await response.json();
       } else {
@@ -94,55 +83,7 @@ class ApiClient {
       
     } catch (error) {
       console.error('Request failed:', error);
-      throw error; // Re-throw the error so calling code can handle it
+      throw error;
     }
-  }
- 
-  // ---------------//
-  //  API Methods   //
-  // ---------------//
-  
-  async ping() {
-    const URL = '/api/ping';
-    return this.makeRequest(URL, { includeAuth: false });
-  }
-  
-  async login(email, password) {
-    const URL = '/api/login';
-    const response = await this.makeRequest(URL, {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-      includeAuth: false
-    });
-    
-    if (response.status === 'success') {
-      this.token = response.token;
-      await this.storage.set('token', this.token);
-      await this.storage.set('user_name', response.user_name);
-    }
-    return response;
-  }
-  
-  async tokenStatus() {
-    const URL = '/api/token/status';
-    const response = await this.makeRequest(URL, {
-      method: 'GET',
-      includeAuth: true
-    });
-    return response;
-  }
-  
-  async createBookmark(bookmarkData) {
-    const URL = '/api/bookmark';
-    return this.makeRequest(URL, {
-      method: 'POST',
-      body: JSON.stringify(bookmarkData)
-    });
-  }
-  
-  async logout() {
-    this.token = null;
-    await this.storage.remove('token');
-    await this.storage.remove('user_name');
   }
 }
