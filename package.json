@@ -1,0 +1,18 @@
+{
+  "name": "adbs-firefox-addon",
+  "version": "1.0.0",
+  "description": "Official ADBS firefox addon",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steveljko/adbs-firefox-addon.git"
+  },
+  "author": "steveljko",
+  "scripts": {
+    "build": "web-ext build --source-dir=src --artifacts-dir=dist",
+    "start": "web-ext run --source-dir=src",
+    "lint": "web-ext lint --source-dir=src"
+  },
+  "devDependencies": {
+    "web-ext": "^7.8.0"
+  }
+}

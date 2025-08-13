@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  const api = new ApiClient;
+  const api = new HttpClient;
   const storage = new StorageManager;
   let currentView = 'server';
   let serverUrl = '';
