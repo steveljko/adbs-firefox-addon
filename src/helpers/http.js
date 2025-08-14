@@ -14,8 +14,11 @@ class HttpClient {
   }
   
   formatUrl(url) {
-    if (!url) return '';
-    return url.startsWith('http') ? url : `https://${url}`;
+    const hasHttp = url.startsWith('http');
+
+    if (!hasHttp) return `http://${url}`;
+
+    return url;
   }
   
   getHeaders(includeAuth = true) {
@@ -24,9 +27,7 @@ class HttpClient {
       'Content-Type': 'application/json',
       'X-Addon-Version': this.version
     };
-    if (includeAuth && this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
+    if (includeAuth && this.token) headers['Authorization'] = `Bearer ${this.token}`;
     return headers;
   }
   
@@ -36,9 +37,7 @@ class HttpClient {
     }
     
     const url = `${this.baseURL}${endpoint}`;
-    const defaultOptions = {
-      headers: this.getHeaders(options.includeAuth !== false)
-    };
+    const defaultOptions = { headers: this.getHeaders(options.includeAuth !== false) };
     
     const mergedOptions = {
       ...defaultOptions,
@@ -57,33 +56,47 @@ class HttpClient {
         const contentType = response.headers.get('content-type');
         
         if (contentType && contentType.includes('application/json')) {
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || `HTTP ${response.status}`;
-          } catch {
-            errorMessage = `HTTP ${response.status}`;
-          }
-        } else {
-          try {
-            errorMessage = await response.text() || `HTTP ${response.status}`;
-          } catch {
-            errorMessage = `HTTP ${response.status}`;
-          }
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
         }
         
         throw new Error(errorMessage);
       }
       
-     const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        return await response.json();
-      } else {
-        return await response.text();
-      }
-      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) return await response.json();
     } catch (error) {
       console.error('Request failed:', error);
       throw error;
     }
+  }
+
+  async get(endpoint, options = {}) {
+    return this.makeRequest(endpoint, {
+      ...options,
+      method: 'GET'
+    });
+  }
+  
+  async post(endpoint, data = null, options = {}) {
+    const postOptions = {
+      ...options,
+      method: 'POST'
+    };
+    
+    if (data) postOptions.body = JSON.stringify(data);
+    
+    return this.makeRequest(endpoint, postOptions);
+  }
+  
+  async put(endpoint, data = null, options = {}) {
+    const putOptions = {
+      ...options,
+      method: 'PUT'
+    };
+    
+    if (data) putOptions.body = JSON.stringify(data);
+    
+    return this.makeRequest(endpoint, putOptions);
   }
 }
