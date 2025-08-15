@@ -4,10 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laravel App Connector</title>
-  <script src="/helpers/storage.js"></script>
-  <script src="/helpers/api.js"></script>
-  <script src="/popup.js"></script>
   <link rel="stylesheet" href="/assets/app.css" />
 </head>
 
@@ -22,14 +18,14 @@
       <div id="serverView" class="view active">
         <div class="form-group">
           <label for="serverUrl">Server URL</label>
-          <input type="text" id="serverUrl" placeholder="https://your-server.com" />
+          <input type="text" id="serverUrl" placeholder="Your Server IP Address" />
         </div>
 
         <div id="serverError" class="alert alert-error"></div>
 
         <button id="testConnectionBtn" class="btn btn-primary">
           <span id="serverSpinner" class="loading-spinner hidden"></span>
-          <span id="serverBtnText">Test Connection</span>
+          <span id="serverBtnText">Connect to Server</span>
         </button>
       </div>
 
@@ -74,6 +70,8 @@
       </div>
     </div>
   </div>
+
+  <script type="module" src="./popup.js"></script>
 </body>
 
 </html>

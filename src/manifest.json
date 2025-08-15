@@ -1,7 +1,7 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "ADBS",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "ADBS Firefox Addon",
   "permissions": [
     "bookmarks",
@@ -11,7 +11,12 @@
   "background": {
     "scripts": ["background.js"]
   },
-  "browser_action": {
-    "default_popup": "popup.html"
-  }
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+"content_security_policy": "script-src 'self'; object-src 'self';",
+  "web_accessible_resources": [{
+    "resources": ["assets/*"],
+    "matches": ["<all_urls>"]
+  }]
 }

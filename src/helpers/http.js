@@ -2,7 +2,7 @@ class HttpClient {
   constructor() {
     this.baseURL = null;
     this.token = null;
-    this.version = '1.0.0';
+    this.version = '0.0.1';
   }
   
   setBaseURL(url) {
@@ -100,3 +100,5 @@ class HttpClient {
     return this.makeRequest(endpoint, putOptions);
   }
 }
+
+export default new HttpClient;
