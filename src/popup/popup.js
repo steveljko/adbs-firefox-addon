@@ -1,24 +1,45 @@
 import http from '.././helpers/http.js';
+import storage from '.././helpers/storage.js';
+import { view, ui } from '.././helpers/ui.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
-  let currView = 'server';
+  const storedUrl = await storage.get('serverUrl');
+  if (storedUrl) {
+    http.setBaseURL(storedUrl);
+    document.getElementById('currentServerUrl').innerHTML = `Current server is ${storedUrl}`;
+    view.show('login');
+  }
 
-  function showView(viewName) {
-    const views = ['server', 'login', 'dashboard'];
-    if (!views.includes(viewName)) {
-      console.warn(`Invalid view name: ${viewName}`);
-      return;
-    }
+  document
+    .getElementById('testConnectionBtn')
+    .addEventListener('click', async function () {
+      ui.toggleLoading(this);
 
-    views.forEach(view => {
-      const element = document.getElementById(`${view}View`);
-      if (view === viewName) {
-        element.classList.add('active');
-      } else {
-        element.classList.remove('active');
+      const url = document.getElementById('serverUrl').value;
+
+      if (url == "") {
+        ui.showError('You must provide Server URL to continue.', 'serverError');
+        ui.toggleLoading(this);
+        return;
+      }
+
+      storage.set('serverUrl', url);
+
+      http.setBaseURL(url);
+      const res = await http.get('/ping');
+
+      if (res.status == 'ok') { 
+        ui.hideError('serverError');
+        ui.clearInput('serverUrl');
+        ui.toggleLoading(this);
+        view.show('login');
       }
     });
 
-    currView = viewName;
-  }
+  const a = document
+    .getElementById('backToServerBtn')
+    .addEventListener('click', async () => {
+      await storage.remove('serverUrl');
+      view.show('server')
+    });
 });

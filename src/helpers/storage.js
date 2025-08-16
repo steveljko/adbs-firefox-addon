@@ -108,3 +108,5 @@ class StorageManager {
     this.cache.clear();
   }
 }
+
+export default new StorageManager;

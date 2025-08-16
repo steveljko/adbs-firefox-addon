@@ -101,10 +101,6 @@ body {
   color: white;
 }
 
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -117,7 +113,6 @@ body {
 
 .btn-secondary:hover {
   background: #4b5563;
-  transform: translateY(-1px);
 }
 
 .btn-danger {
@@ -127,7 +122,6 @@ body {
 
 .btn-danger:hover {
   background: #dc2626;
-  transform: translateY(-1px);
 }
 
 .alert {
@@ -178,6 +172,13 @@ body {
   100% {
     transform: rotate(360deg);
   }
+}
+
+#currentServerUrl {
+  display: block;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #525252;
 }
 
 #user-info {

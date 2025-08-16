@@ -16,9 +16,9 @@ class HttpClient {
   formatUrl(url) {
     const hasHttp = url.startsWith('http');
 
-    if (!hasHttp) return `http://${url}`;
+    if (!hasHttp) return `http://${url}/api`;
 
-    return url;
+    return `${url}/api`;
   }
   
   getHeaders(includeAuth = true) {
