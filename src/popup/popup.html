@@ -30,18 +30,18 @@
       </div>
 
       <!-- Login View -->
-      <div id="loginView" class="view">
+      <form id="loginView" class="view" novalidate>
         <div class="form-group">
           <label for="email">Email Address</label>
           <input type="email" id="email" placeholder="your@email.com" />
+          <span id="emailError" class="error"></span>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
           <input type="password" id="password" placeholder="Enter your password" />
+          <span id="passwordError" class="error"></span>
         </div>
-
-        <div id="loginError" class="alert alert-error"></div>
 
         <button id="loginBtn" class="btn btn-primary">
           <span id="spinner" class="loading-spinner hidden"></span>
@@ -53,7 +53,7 @@
         </button>
 
         <span id="currentServerUrl"></span>
-      </div>
+      </form>
 
       <!-- Dashboard View -->
       <div id="dashboardView" class="view">

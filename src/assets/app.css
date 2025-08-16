@@ -81,6 +81,13 @@ body {
   background: white;
 }
 
+.form-group span.error {
+  display: block;
+  margin-top: .5rem;
+  text-size: 0.875rem;
+  color: #cf000f;
+}
+
 .btn {
   width: 100%;
   padding: 14px 20px;

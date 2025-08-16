@@ -52,15 +52,20 @@ class HttpClient {
       const response = await fetch(url, mergedOptions);
       
       if (!response.ok) {
-        let errorMessage;
         const contentType = response.headers.get('content-type');
         
         if (contentType && contentType.includes('application/json')) {
           const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
+
+          // handle validation errors
+          if (errorData.errors) {
+            const error = new Error('Input validation failed');
+            error.messages = errorData.errors;
+            throw error;
+          }
+
+          throw new Error(errorData);
         }
-        
-        throw new Error(errorMessage);
       }
       
       const contentType = response.headers.get('content-type');

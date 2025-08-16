@@ -56,5 +56,19 @@ export const ui = {
       spinner.classList.toggle('hidden', isLoading);
 
       button.dataset.loading = !isLoading;
-  }
+  },
+
+  setInputError(fieldId, message) {
+    // prevent showing empty message
+    if (message == undefined) {
+      return;
+    }
+
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(`${fieldId}Error`);
+
+    error.innerHTML = message;
+
+    field.addEventListener('keydown', (e) => error.innerHTML = '');
+  },
 };

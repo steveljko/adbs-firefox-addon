@@ -1,6 +1,7 @@
 import http from '.././helpers/http.js';
 import {
-  ping
+  ping,
+  login,
 } from '.././helpers/api.js';
 import storage from '.././helpers/storage.js';
 import { view, ui } from '.././helpers/ui.js';
@@ -51,5 +52,23 @@ document.addEventListener('DOMContentLoaded', async function () {
     .addEventListener('click', async () => {
       await storage.remove('serverUrl');
       view.show('server')
+    });
+
+  document
+    .getElementById('loginView')
+    .addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await login({ email, password });
+      } catch (err) {
+        const { email: emailError, password: passwordError } = err.messages;
+
+        ui.setInputError('email', emailError);
+        ui.setInputError('password', passwordError);
+      }
     });
 });
