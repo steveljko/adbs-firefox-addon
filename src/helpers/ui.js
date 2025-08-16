@@ -24,7 +24,7 @@ export const view = {
 };
 
 export const ui = {
-  showError(message, containerId) {
+  showError(containerId, message) {
     const container = document.getElementById(containerId);
     if (container) {
       container.textContent = message;
@@ -35,6 +35,11 @@ export const ui = {
   hideError(elementId) {
     const errorElement = document.getElementById(elementId);
     errorElement.classList.remove('show');
+  },
+
+  setText(elementId, text) {
+    const element = document.getElementById(elementId);
+    element.innerHTML = text;
   },
 
   clearInput(elementId) {
