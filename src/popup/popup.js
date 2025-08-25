@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     view.show('login');
   }
 
+  const storedToken = await storage.get('token');
+  if (storedUrl && storedToken) {
+    view.show('dashboard');
+  }
+
   document
     .getElementById('testConnectionBtn')
     .addEventListener('click', async function () {
@@ -62,13 +67,21 @@ document.addEventListener('DOMContentLoaded', async function () {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
+      ui.toggleLoading(e.submitter);
+
       try {
         const res = await login({ email, password });
+
+        if (res.status == "success") {
+          storage.set('token', res.token);
+          view.show('dashboard');
+        }
       } catch (err) {
         const { email: emailError, password: passwordError } = err.messages;
 
         ui.setInputError('email', emailError);
         ui.setInputError('password', passwordError);
+        ui.toggleLoading(e.submitter);
       }
     });
 });
