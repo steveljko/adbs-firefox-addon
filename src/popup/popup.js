@@ -76,6 +76,8 @@ document.addEventListener('DOMContentLoaded', async function () {
           storage.set('token', res.token);
           view.show('dashboard');
         }
+
+        ui.toggleLoading(e.submitter);
       } catch (err) {
         const { email: emailError, password: passwordError } = err.messages;
 
@@ -83,5 +85,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         ui.setInputError('password', passwordError);
         ui.toggleLoading(e.submitter);
       }
+    });
+
+  document
+    .getElementById('logoutBtn')
+    .addEventListener('click', (e) => {
+      storage.remove('token');
+      view.show('login');
     });
 });
